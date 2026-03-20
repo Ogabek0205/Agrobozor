@@ -12,7 +12,7 @@ import {
   FileText, 
   CheckCircle 
 } from "lucide-react";
-import { motion, AnimatePresence ,} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 // CSS-only stubs replacing Three.js/react-three-fiber (Vite 7 compat)
 const Canvas = ({ children, style, ...props }) => (
   <div style={{ position: "relative", width: "100%", height: "100%", background: "transparent", ...style }}>

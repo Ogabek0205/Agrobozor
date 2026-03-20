@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Leaf } from 'lucide-react';
 import { ShoppingCart, LogOut, ChevronRight, User, Package, Award, Plus, FileText, CheckCircle, Search, Menu, X, Star, Store, MapPin, Phone, Mail, FileCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 

@@ -10,7 +10,11 @@ import {
   Award, 
   Plus, 
   FileText, 
-  CheckCircle 
+  CheckCircle,
+  Star,
+  Search,
+  Menu,
+  X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 // CSS-only stubs replacing Three.js/react-three-fiber (Vite 7 compat)

@@ -1,4 +1,3 @@
-import { useState, useEffect, useCallback } from "react";
 import { 
   Leaf, 
   LogIn, 
@@ -11,15 +10,9 @@ import {
   Plus, 
   FileText, 
   CheckCircle,
-  Star,
-  Search,
-  Menu,
-  X,
-  MapPin,
-  Settings,
-  Bell,
-  Heart
+  UserPlus
 } from "lucide-react";
+
 import { motion, AnimatePresence } from "framer-motion";
 // CSS-only stubs replacing Three.js/react-three-fiber (Vite 7 compat)
 const Canvas = ({ children, style, ...props }) => (

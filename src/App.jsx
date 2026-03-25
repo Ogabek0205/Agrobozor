@@ -630,7 +630,23 @@ function ProductImage({ image, emoji, alt, height = "100%", radius = 0 }) {
         style={{ width: "100%", height, objectFit: "cover", display: "block", borderRadius: radius }} />
     );
   }
-  return <span style={{ fontSize: 68 }}>{emoji || image || "🌿"}</span>;
+  // Emoji: display in a styled full-height container that matches real images
+  const icon = emoji || image || "🌿";
+  return (
+    <div style={{
+      width: "100%", height, borderRadius: radius,
+      background: "linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      position: "relative", overflow: "hidden",
+    }}>
+      {/* Decorative circles */}
+      <div style={{ position: "absolute", width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.15)", top: -20, right: -20 }} />
+      <div style={{ position: "absolute", width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.1)", bottom: -10, left: -10 }} />
+      <span style={{ fontSize: 80, lineHeight: 1, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))", position: "relative", zIndex: 1 }}>
+        {icon}
+      </span>
+    </div>
+  );
 }
 
 // ─── 3D TILT HOOK ─────────────────────────────────────────────────────────────

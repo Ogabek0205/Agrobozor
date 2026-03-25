@@ -115,7 +115,7 @@ const DB = {
     { id: 7,  name: "Karam",            categoryId: 1, price: 1800,  unit: "kg", region: "Andijon",       seller: "Sherzod Mirzayev",    sellerId: 2, stock: 450,   desc: "Yangi oq karam",                            rating: 4.3, reviews: 18,
       image: "https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?w=500&h=340&fit=crop", emoji: "🥬", status: "active", createdAt: "2024-06-15" },
     { id: 8,  name: "Limon",            categoryId: 2, price: 15000, unit: "kg", region: "Toshkent",      seller: "Jasur Toshmatov",     sellerId: 2, stock: 200,   desc: "Issiqxona limoni",                          rating: 4.7, reviews: 29,
-      image: "https://images.unsplash.com/photo-1590502593747-422e0618037a?w=800&q=80", emoji: "🍋", status: "active", createdAt: "2024-06-20" },
+      image: "https://images.unsplash.com/photo-1602524816915-83b5d7b9e35f?w=500&h=340&fit=crop", emoji: "🍋", status: "active", createdAt: "2024-06-20" },
     { id: 9,  name: "Sarimsoq",         categoryId: 7, price: 25000, unit: "kg", region: "Buxoro",        seller: "Hamid Normatov",      sellerId: 2, stock: 150,   desc: "Buxoro sariq sarimsoq",                     rating: 4.8, reviews: 41,
       image: "https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?w=500&h=340&fit=crop", emoji: "🧄", status: "active", createdAt: "2024-05-30" },
     { id: 10, name: "Kartoshka (Qizil)",categoryId: 6, price: 3500,  unit: "kg", region: "Jizzax",        seller: "Umid Qodirov",        sellerId: 2, stock: 3000,  desc: "Jizzax qizil kartoshkasi",                  rating: 4.4, reviews: 22,
@@ -385,7 +385,7 @@ const css = `
     display: flex; flex-direction: column; position: relative;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
-  .prod-img { position: relative; height: 180px; overflow: hidden; background: var(--g5); }
+  .prod-img { position: relative; height: 180px; overflow: hidden; background: var(--g5); display: flex; align-items: stretch; }
   .prod-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
   .prod-card:hover .prod-img img { transform: scale(1.1); }
   .prod-badge { position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 30px; font-size: 11px; font-weight: 700; color: var(--g1); display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 2; }
@@ -627,22 +627,32 @@ function ProductImage({ image, emoji, alt, height = "100%", radius = 0 }) {
   if (isUrl && !err) {
     return (
       <img src={image} alt={alt || "mahsulot"} onError={() => setErr(true)}
-        style={{ width: "100%", height, objectFit: "cover", display: "block", borderRadius: radius }} />
+        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", borderRadius: radius }} />
     );
   }
-  // Emoji: display in a styled full-height container that matches real images
+  // Emoji: fill the full parent container like a real image
   const icon = emoji || image || "🌿";
+  // Pick a pleasant gradient based on the emoji
+  const gradients = {
+    "🍅":"135deg,#fca5a5,#f87171", "🥒":"135deg,#86efac,#4ade80",
+    "🍎":"135deg,#fca5a5,#ef4444", "🍇":"135deg,#c4b5fd,#a78bfa",
+    "🌾":"135deg,#fde68a,#f59e0b", "🍉":"135deg,#fca5a5,#4ade80",
+    "🥬":"135deg,#bbf7d0,#22c55e", "🍋":"135deg,#fef08a,#facc15",
+    "🧄":"135deg,#f5f5f4,#d6d3d1", "🥔":"135deg,#fef3c7,#d97706",
+    "🌿":"135deg,#bbf7d0,#22c55e", "🎃":"135deg,#fed7aa,#ea580c",
+    "🧅":"135deg,#fef9c3,#ca8a04", "🌱":"135deg,#bbf7d0,#16a34a",
+  };
+  const grad = gradients[icon] || "135deg,#d1fae5,#6ee7b7";
   return (
     <div style={{
-      width: "100%", height, borderRadius: radius,
-      background: "linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%)",
+      width: "100%", height: "100%", borderRadius: radius,
+      background: `linear-gradient(${grad})`,
       display: "flex", alignItems: "center", justifyContent: "center",
       position: "relative", overflow: "hidden",
     }}>
-      {/* Decorative circles */}
-      <div style={{ position: "absolute", width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.15)", top: -20, right: -20 }} />
-      <div style={{ position: "absolute", width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.1)", bottom: -10, left: -10 }} />
-      <span style={{ fontSize: 80, lineHeight: 1, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))", position: "relative", zIndex: 1 }}>
+      <div style={{ position: "absolute", width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.12)", top: -30, right: -30 }} />
+      <div style={{ position: "absolute", width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.08)", bottom: -15, left: -15 }} />
+      <span style={{ fontSize: 90, lineHeight: 1, filter: "drop-shadow(0 6px 16px rgba(0,0,0,0.2))", position: "relative", zIndex: 1, userSelect: "none" }}>
         {icon}
       </span>
     </div>
@@ -691,7 +701,7 @@ function ProdCard({ p, onClick, onCart, user, openAuth }) {
         <div className="prod-badge">
           <MapPin size={12} color="var(--g3)" /> {p.region}
         </div>
-        <ProductImage image={p.image} emoji={p.emoji} alt={p.name} height="200px" />
+        <ProductImage image={p.image} emoji={p.emoji} alt={p.name} height="100%" />
         <div className="prod-overlay">
           <button className="view-btn">Tezkor ko'rish</button>
         </div>

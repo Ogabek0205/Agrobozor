@@ -1135,35 +1135,283 @@ function CatalogPage({ db, user, openAuth, setSelProd, addToCart, initCat }) {
   const [search, setSearch] = useState("");
   const [cat, setCat] = useState(initCat || null);
   const [sort, setSort] = useState("new");
+  const [focused, setFocused] = useState(false);
 
+  // FIX: Convert both sides to String for comparison (fixes Firebase type mismatch)
   const filtered = db.products.filter(p => {
-    const mc = !cat || p.categoryId === cat;
-    const ms = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.region.toLowerCase().includes(search.toLowerCase());
-    return mc && ms;
-  }).sort((a, b) => sort === "price-asc" ? a.price - b.price : sort === "price-desc" ? b.price - a.price : sort === "rating" ? b.rating - a.rating : b.id - a.id);
+    const mc = !cat || String(p.categoryId) === String(cat);
+    const ms = !search.trim() ||
+      (p.name && p.name.toLowerCase().includes(search.toLowerCase())) ||
+      (p.region && p.region.toLowerCase().includes(search.toLowerCase())) ||
+      (p.seller && p.seller.toLowerCase().includes(search.toLowerCase()));
+    return mc && ms && p.status !== "inactive";
+  }).sort((a, b) => {
+    if (sort === "price-asc") return a.price - b.price;
+    if (sort === "price-desc") return b.price - a.price;
+    if (sort === "rating") return (b.rating || 0) - (a.rating || 0);
+    // FIX: sort by createdAt string instead of numeric id
+    return (b.createdAt || "") > (a.createdAt || "") ? 1 : -1;
+  });
+
+  const suggestions = search.trim().length >= 1 && !focused
+    ? []
+    : db.products.filter(p =>
+        search.trim().length >= 1 &&
+        p.name && p.name.toLowerCase().includes(search.toLowerCase())
+      ).slice(0, 5);
 
   return (
     <div className="container">
       <div className="section">
-        <div className="sh"><h2>🛒 Mahsulotlar katalogi</h2><p>{filtered.length} ta mahsulot</p></div>
-        <div className="filters">
-          <input className="search-inp" placeholder="🔍 Qidirish..." value={search} onChange={e => setSearch(e.target.value)} />
-          <button className={`fbtn ${!cat ? "act" : ""}`} onClick={() => setCat(null)}>Barchasi</button>
-          {db.categories.map(c => <button key={c.id} className={`fbtn ${cat === c.id ? "act" : ""}`} onClick={() => setCat(c.id)}>{c.icon} {c.name}</button>)}
-        </div>
-        <div className="filters">
-          <span style={{ fontSize: 13, fontWeight: 700, color: "var(--s3)" }}>Saralash:</span>
-          {[["new", "Yangi"], ["price-asc", "Arzon↑"], ["price-desc", "Qimmat↓"], ["rating", "⭐ Reyting"]].map(([v, l]) => (
-            <button key={v} className={`fbtn ${sort === v ? "act" : ""}`} onClick={() => setSort(v)}>{l}</button>
-          ))}
-        </div>
-        {filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 0", color: "var(--s3)" }}>
-            <div style={{ fontSize: 56 }}>🔍</div><h3 style={{ marginTop: 16, color: "var(--s5)" }}>Topilmadi</h3>
+        {/* Premium Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="catalog-header"
+          style={{ marginBottom: 32 }}
+        >
+          <div className="sh">
+            <h2 style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              🛒 Mahsulotlar katalogi
+            </h2>
+            <p>Jami <strong style={{ color: "var(--g3)" }}>{db.products.length}</strong> ta mahsulotdan <strong style={{ color: "var(--a2)" }}>{filtered.length}</strong> ta topildi</p>
           </div>
-        ) : (
-          <div className="prod-grid">{filtered.map(p => <ProdCard key={p.id} p={p} onClick={() => setSelProd(p)} onCart={() => addToCart(p)} user={user} openAuth={openAuth} />)}</div>
-        )}
+        </motion.div>
+
+        {/* Premium Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          style={{ position: "relative", marginBottom: 20 }}
+        >
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            background: "#fff",
+            borderRadius: 16,
+            padding: "4px 8px 4px 20px",
+            boxShadow: focused
+              ? "0 0 0 3px rgba(16,185,129,0.25), 0 8px 32px rgba(0,0,0,0.1)"
+              : "0 4px 24px rgba(0,0,0,0.08)",
+            border: `2px solid ${focused ? "var(--g3)" : "transparent"}`,
+            transition: "all 0.3s ease",
+            gap: 12,
+          }}>
+            <motion.div
+              animate={{ scale: focused ? 1.15 : 1, rotate: focused ? 10 : 0 }}
+              transition={{ type: "spring", stiffness: 400 }}
+              style={{ color: focused ? "var(--g3)" : "var(--s3)", display: "flex", flexShrink: 0 }}
+            >
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </motion.div>
+            <input
+              style={{
+                flex: 1, border: "none", outline: "none",
+                fontSize: 16, fontFamily: "inherit",
+                background: "transparent", color: "var(--s5)",
+                padding: "14px 0",
+              }}
+              placeholder="Mahsulot nomi, hudud yoki sotuvchi..."
+              value={search}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setTimeout(() => setFocused(false), 200)}
+              onChange={e => setSearch(e.target.value)}
+            />
+            <AnimatePresence>
+              {search && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  onClick={() => setSearch("")}
+                  style={{
+                    background: "var(--s1)", border: "none", borderRadius: "50%",
+                    width: 32, height: 32, cursor: "pointer", display: "flex",
+                    alignItems: "center", justifyContent: "center", flexShrink: 0,
+                    color: "var(--s3)", fontSize: 16
+                  }}
+                >✕</motion.button>
+              )}
+            </AnimatePresence>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                background: "linear-gradient(135deg, var(--g3), var(--g4))",
+                border: "none", borderRadius: 12, padding: "10px 24px",
+                color: "#fff", fontWeight: 700, fontSize: 14,
+                cursor: "pointer", flexShrink: 0, display: "flex",
+                alignItems: "center", gap: 6,
+              }}
+            >
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              Qidirish
+            </motion.button>
+          </div>
+
+          {/* Live Suggestions Dropdown */}
+          <AnimatePresence>
+            {focused && suggestions.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                style={{
+                  position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0,
+                  background: "#fff", borderRadius: 14, zIndex: 100,
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
+                  border: "1px solid rgba(16,185,129,0.15)",
+                  overflow: "hidden",
+                }}
+              >
+                {suggestions.map((p, i) => (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    onClick={() => { setSelProd(p); setFocused(false); setSearch(""); }}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 14,
+                      padding: "12px 20px", cursor: "pointer",
+                      borderBottom: i < suggestions.length - 1 ? "1px solid var(--s1)" : "none",
+                      transition: "background 0.2s",
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = "var(--g5)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  >
+                    <span style={{ fontSize: 28 }}>{p.emoji || "🌿"}</span>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 14, color: "var(--s5)" }}>{p.name}</div>
+                      <div style={{ fontSize: 12, color: "var(--s3)" }}>📍 {p.region} · {p.price?.toLocaleString()} so'm/kg</div>
+                    </div>
+                    <div style={{ marginLeft: "auto", color: "var(--g3)", fontWeight: 700, fontSize: 14 }}>
+                      {p.price?.toLocaleString()} <span style={{ fontSize: 11 }}>so'm</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Category Filter Pills */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}
+        >
+          <button
+            onClick={() => setCat(null)}
+            style={{
+              padding: "8px 18px", borderRadius: 50, border: "none",
+              background: !cat ? "linear-gradient(135deg,var(--g3),var(--g4))" : "var(--s1)",
+              color: !cat ? "#fff" : "var(--s4)", fontWeight: 600, fontSize: 13,
+              cursor: "pointer", transition: "all 0.2s",
+            }}
+          >Barchasi</button>
+          {db.categories.map(c => (
+            <motion.button
+              key={c.id}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setCat(String(cat) === String(c.id) ? null : c.id)}
+              style={{
+                padding: "8px 18px", borderRadius: 50, border: "none",
+                background: String(cat) === String(c.id)
+                  ? "linear-gradient(135deg,var(--g3),var(--g4))"
+                  : "var(--s1)",
+                color: String(cat) === String(c.id) ? "#fff" : "var(--s4)",
+                fontWeight: 600, fontSize: 13, cursor: "pointer", transition: "all 0.2s",
+              }}
+            >{c.icon} {c.name}</motion.button>
+          ))}
+        </motion.div>
+
+        {/* Sort Bar */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 28, flexWrap: "wrap" }}
+        >
+          <span style={{ fontSize: 13, fontWeight: 700, color: "var(--s3)" }}>Saralash:</span>
+          {[["new", "🕐 Yangi"], ["price-asc", "💰 Arzon↑"], ["price-desc", "💎 Qimmat↓"], ["rating", "⭐ Reyting"]].map(([v, l]) => (
+            <button
+              key={v}
+              onClick={() => setSort(v)}
+              style={{
+                padding: "6px 14px", borderRadius: 20, border: "none",
+                background: sort === v ? "var(--g5)" : "transparent",
+                color: sort === v ? "var(--g2)" : "var(--s3)",
+                fontWeight: sort === v ? 700 : 500, fontSize: 13,
+                cursor: "pointer", transition: "all 0.2s",
+              }}
+            >{l}</button>
+          ))}
+        </motion.div>
+
+        {/* Results */}
+        <AnimatePresence mode="wait">
+          {filtered.length === 0 ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              style={{ textAlign: "center", padding: "80px 0" }}
+            >
+              <motion.div
+                animate={{ rotate: [0, -10, 10, -10, 0], scale: [1, 1.1, 1] }}
+                transition={{ repeat: Infinity, duration: 3 }}
+                style={{ fontSize: 72, display: "inline-block" }}
+              >
+                🔍
+              </motion.div>
+              <h3 style={{ marginTop: 20, color: "var(--s4)", fontSize: 22 }}>
+                "{search || "Bu kategoriyada"}" bo'yicha hech narsa topilmadi
+              </h3>
+              <p style={{ color: "var(--s3)", marginTop: 8 }}>
+                Boshqa so'z kiriting yoki kategoriyani o'zgartiring
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => { setSearch(""); setCat(null); }}
+                style={{
+                  marginTop: 20, padding: "12px 28px", borderRadius: 12,
+                  background: "linear-gradient(135deg,var(--g3),var(--g4))",
+                  border: "none", color: "#fff", fontWeight: 700,
+                  fontSize: 14, cursor: "pointer",
+                }}
+              >Barchasini ko'rsatish</motion.button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="grid"
+              className="prod-grid"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {filtered.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(i * 0.05, 0.3) }}
+                >
+                  <ProdCard p={p} onClick={() => setSelProd(p)} onCart={() => addToCart(p)} user={user} openAuth={openAuth} />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

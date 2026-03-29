@@ -198,3 +198,37 @@ button {
   border-color: var(--pk-primary);
   box-shadow: 0 0 0 3px var(--pk-ring);
 }
+/* HERO RESPONSIVE FIX */
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hero-acts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Desktop uchun */
+@media (min-width: 768px) {
+  .hero-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hero-acts {
+    flex-direction: row;
+  }
+}
+.hero-inner h1 {
+  font-size: 26px;
+}
+
+@media (min-width: 768px) {
+  .hero-inner h1 {
+    font-size: 48px;
+  }
+}

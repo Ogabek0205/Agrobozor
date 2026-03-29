@@ -227,24 +227,21 @@ button {
   font-size: 26px;
 }
 
-@media (min-width: 768px) {
-  .hero-inner h1 {
-    font-size: 48px;
-  }
-}
-@media (max-width: 768px) {
-  .nav { padding: 0 20px; height: 70px; }
-  .container { padding: 0 15px; }
-  .hero { padding: 40px 0; }
-  .hero h1 { font-size: 28px; }
-  .hero-sub { font-size: 1rem; max-width: 100%; }
-  .hero-acts { flex-direction: column; gap: 12px; }
-  .cat-grid { grid-template-columns: 1fr; gap: 16px; }
-  .prod-grid { grid-template-columns: 1fr; gap: 16px; }
-  .news-grid { grid-template-columns: 1fr; }
-  .stat-grid { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr; }
-  .contact-grid { grid-template-columns: 1fr; }
-  .modal { max-width: 95vw; margin: 10px; }
-  .mbody { padding: 16px 20px; }
+@media(max-width:600px){
+  .cat-grid,.prod-grid,.news-grid{grid-template-columns:1fr;}
+  .footer-grid{grid-template-columns:1fr;}
+  .hero h1{font-size:26px;letter-spacing:-1px;}
+  .hero{padding:40px 0;}
+  .hero-sub{font-size:1rem;}
+  .nav{padding:0 12px;height:60px;}
+  .nav-links .nl:not(.cta){display:none;}
+  .brand-name{font-size:0.95rem;}
+  .brand-logo{width:34px;height:34px;}
+  .section{padding:36px 0;}
+  .container{padding:0 12px;}
+  .hstat-num{font-size:1.8rem;}
+  .hero-stats-grid{grid-template-columns:1fr 1fr;gap:10px;}
+  .frow{grid-template-columns:1fr;}
+  .contact-grid{grid-template-columns:1fr;}
+  .prof-head{padding:24px 16px;flex-direction:column;text-align:center;}
 }

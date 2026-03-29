@@ -232,3 +232,19 @@ button {
     font-size: 48px;
   }
 }
+@media (max-width: 768px) {
+  .nav { padding: 0 20px; height: 70px; }
+  .container { padding: 0 15px; }
+  .hero { padding: 40px 0; }
+  .hero h1 { font-size: 28px; }
+  .hero-sub { font-size: 1rem; max-width: 100%; }
+  .hero-acts { flex-direction: column; gap: 12px; }
+  .cat-grid { grid-template-columns: 1fr; gap: 16px; }
+  .prod-grid { grid-template-columns: 1fr; gap: 16px; }
+  .news-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .modal { max-width: 95vw; margin: 10px; }
+  .mbody { padding: 16px 20px; }
+}

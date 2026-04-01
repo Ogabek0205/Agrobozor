@@ -240,6 +240,7 @@ const css = `
     background: none; border: none; color: rgba(255, 255, 255, 0.8);
     padding: 10px 16px; border-radius: 10px; cursor: pointer;
     font-size: 14px; font-weight: 600; transition: var(--tr);
+    display: flex; align-items: center; gap: 5px;
   }
   .nl:hover, .nl.act { background: rgba(255, 255, 255, 0.15); color: #fff; }
   .nl.cta {
@@ -584,7 +585,11 @@ const css = `
   }
   @media(max-width:600px){
     .cat-grid,.prod-grid,.news-grid{grid-template-columns:1fr;}
-    .nav-links .nl:not(.cta):not(:last-child){display:none;}
+    .nav { height: auto; padding: 12px; flex-wrap: wrap; gap: 10px; }
+    .nav-links { width: 100%; overflow-x: auto; padding-bottom: 5px; justify-content: flex-start; -webkit-overflow-scrolling: touch; }
+    .nav-links::-webkit-scrollbar { height: 4px; }
+    .nav-links::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; border: none; }
+    .main { padding-top: 110px; }
     .hero h1{font-size:30px;}
     .footer-grid{grid-template-columns:1fr;}
   }
@@ -3103,7 +3108,7 @@ function Nav({ user, page, setPage, openAuth, cart, userMenuOpen, setUserMenuOpe
       </div>
       <div className="nav-links">
         {navPages.map(([p, l, d]) => (
-          <button key={p} className={`nl ${page === p ? "act" : ""}`} onClick={() => setPage(p)} style={{ display:"flex", alignItems:"center", gap:5 }}>
+          <button key={p} className={`nl ${page === p ? "act" : ""}`} onClick={() => setPage(p)}>
             <Icon d={d} /> {l}
           </button>
         ))}

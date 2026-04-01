@@ -233,8 +233,11 @@ button {
   .hero h1{font-size:26px;letter-spacing:-1px;}
   .hero{padding:40px 0;}
   .hero-sub{font-size:1rem;}
-  .nav{padding:0 12px;height:60px;}
-  .nav-links .nl:not(.cta){display:none;}
+  .nav { padding: 12px; height: auto; flex-wrap: wrap; gap: 10px; }
+  .nav-links { width: 100%; overflow-x: auto; padding-bottom: 5px; justify-content: flex-start; -webkit-overflow-scrolling: touch; }
+  .nav-links::-webkit-scrollbar { height: 4px; }
+  .nav-links::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; border: none; }
+  .main { padding-top: 110px; }
   .brand-name{font-size:0.95rem;}
   .brand-logo{width:34px;height:34px;}
   .section{padding:36px 0;}
